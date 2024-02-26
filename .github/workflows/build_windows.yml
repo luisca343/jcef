@@ -18,13 +18,15 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
       - name: Install dependencies
         run: |
           choco install ant
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
           echo "ANT_HOME=C:\ProgramData\chocolatey\lib\ant\apache-ant-1.10.11" | Out-File -Append -FilePath $env:GITHUB_ENV
           echo "JAVA_HOME=${env:JAVA_HOME}" | Out-File -Append -FilePath $env:GITHUB_ENV
-          echo "VS160COMNTOOLS=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools" | Out-File -Append -FilePath $env:GITHUB_ENV
           echo "JCEF_CMAKE=C:\Program Files\CMake\bin" | Out-File -Append -FilePath $env:GITHUB_ENV
 
       - name: Build JCEF
