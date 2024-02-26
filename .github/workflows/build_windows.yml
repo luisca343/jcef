@@ -1,0 +1,39 @@
+name: Build JCEF on Windows
+
+on: push
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: 'JetBrains/jcef'
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: Install dependencies
+        run: |
+          choco install ant
+          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+          echo "ANT_HOME=${env:ProgramFiles(x86)}\apache-ant" | Out-File -Append -FilePath $env:GITHUB_ENV
+          echo "JAVA_HOME=${env:JAVA_HOME}" | Out-File -Append -FilePath $env:GITHUB_ENV
+          echo "VS160COMNTOOLS=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools" | Out-File -Append -FilePath $env:GITHUB_ENV
+          echo "JCEF_CMAKE=C:\Program Files\CMake\bin" | Out-File -Append -FilePath $env:GITHUB_ENV
+
+      - name: Build JCEF
+        run: |
+          cd .\jb\tools\windows
+          cmd /c build.bat all x86_64
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: jcef_win_x86_64
+          path: jcef_win_x86_64.tar.gz

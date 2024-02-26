@@ -1,0 +1,36 @@
+name: Build JCEF
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: 'JetBrains/jcef'
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ant git gcc cmake bison flex pkg-config
+
+      - name: Build JCEF
+        run: |
+          export JAVA_HOME=${JAVA_HOME}
+          chmod +x ./jb/tools/linux/build.sh
+          ./jb/tools/linux/build.sh all x86_64
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: jcef_linux_x86_64
+          path: jcef_linux_x86_64.tar.gz
